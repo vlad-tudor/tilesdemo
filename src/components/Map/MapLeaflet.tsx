@@ -10,17 +10,12 @@ import {
   organiseLines,
   latLngToCoordinate,
   linesToCoordinatePairs,
+  generateCoordinateKey,
 } from "../../domain/lib/util";
-import { Coordinate, CoordinateTuple } from "../../domain/types";
+import { CoordinateTuple } from "../../domain/types";
 import L from "leaflet";
 import { getGridSection } from "../../fetch/what3words";
-
-const secretCoordinates1: Coordinate = {
-  lng: -0.1332,
-  lat: 51.51636,
-};
-
-const roundTolerance = 5;
+import { secretCoordinates1 } from "../../domain/lib/enums";
 
 const MapLeaflet = () => {
   // move
@@ -66,7 +61,10 @@ const Tiles = () => {
     var sw = map.getBounds().getSouthWest();
     if (map.getZoom() > 18)
       getGridSection([latLngToCoordinate(sw), latLngToCoordinate(ne)]).then(
-        (lines) => setTiles(linesToCoordinatePairs(organiseLines(lines)))
+        (lines) => {
+          console.log({ lines });
+          setTiles(linesToCoordinatePairs(organiseLines(lines)));
+        }
       );
   }, []);
 
@@ -84,9 +82,7 @@ const Tiles = () => {
   const innerHandlers = {
     click(e: any) {
       let { lat, lng } = e.sourceTarget._bounds._southWest;
-      const key = `${lat.toFixed(roundTolerance)}${lng.toFixed(
-        roundTolerance
-      )}`;
+      const key = generateCoordinateKey({ lat, lng });
       setTile(key);
       // save coords to
     },
@@ -110,11 +106,7 @@ const TileDraw = ({ tile, tiles, eventHandlers }: TileDrawProps) => {
         // add data to each tile.
 
         ([{ lat: swLat, lng: swLng }, { lat: neLat, lng: neLng }], index) => {
-          // unique key for each tile
-          const key = `${swLat.toFixed(roundTolerance)}${swLng.toFixed(
-            roundTolerance
-          )}`;
-
+          const key = generateCoordinateKey({ lat: swLat, lng: swLng });
           return (
             // returns a little rectangle bounded by the coordinates
             <Rectangle

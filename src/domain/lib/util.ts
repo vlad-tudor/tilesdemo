@@ -1,8 +1,17 @@
-import { Coordinate, CoordinateTuple, DestructuredGrid, Line } from "../types";
+import {
+  AugemntedTile,
+  Coordinate,
+  CoordinateTuple,
+  DestructuredGrid,
+  Line,
+  TileData,
+} from "../types";
 import { Feature, GeoJSON } from "geojson";
 import { LatLng } from "leaflet";
+import { MagicValues } from "./enums";
 
 /**
+ * // NEED TO ADD SORTING
  * organises lines into vertical and horizontal lines
  * @param lines
  * @returns [ verticalLines[], horizontalLines[]]
@@ -21,10 +30,11 @@ export const organiseLines = (lines: Line[]): DestructuredGrid => {
 };
 
 /**
+ * NOT USED
  * @param [ vericalLine[], horizontalLine[]]
  * @returns Coodinate[]
  */
-export const linesToCoordinates = ([
+const linesToCoordinates = ([
   verticalLines,
   horizontalLines,
 ]: DestructuredGrid): Coordinate[] => {
@@ -72,13 +82,11 @@ export const linesToCoordinatePairs = ([
 };
 
 /**
- *
+ * NOT USED
  * @param coordinates processed lat/lng coordinates
  * @returns Feature array for GeoJson composition
  */
-export const coodinatesToGetJsonPoints = (
-  coordinates: Coordinate[]
-): Feature[] =>
+const coodinatesToGetJsonPoints = (coordinates: Coordinate[]): Feature[] =>
   coordinates.map((coor) => ({
     type: "Feature",
     properties: {},
@@ -88,7 +96,8 @@ export const coodinatesToGetJsonPoints = (
     },
   }));
 
-export const linesToGeoJson = (lines: Line[]): GeoJSON => ({
+// NOT USED
+const linesToGeoJson = (lines: Line[]): GeoJSON => ({
   type: "FeatureCollection",
   features: coodinatesToGetJsonPoints(linesToCoordinates(organiseLines(lines))),
 });
@@ -102,3 +111,32 @@ export const latLngToCoordinate = ({ lat, lng }: LatLng): Coordinate => ({
   lat,
   lng,
 });
+
+/**
+ * Use this to get a unique ke from a coordinate
+ * Use southWest coordinates from the tiles.
+ * @param param0 Coordinate
+ * @returns
+ */
+export const generateCoordinateKey = ({ lat, lng }: Coordinate) =>
+  `${lat.toFixed(MagicValues.ROUNDTO)}${lng.toFixed(MagicValues.ROUNDTO)}`;
+
+/**
+ *  Augemnts tiles with extra data
+ * @param tiles
+ * @param data
+ * @returns
+ */
+export const augmetTiles = (
+  tiles: CoordinateTuple[],
+  data: TileData[]
+): AugemntedTile[] => {
+  const newTiles: AugemntedTile[] = tiles.map((tile) => {
+    return {
+      coordinates: tile,
+      key: generateCoordinateKey(tile[0]),
+      data: { color: "", clicks: 0, address: "" },
+    };
+  });
+  return newTiles;
+};

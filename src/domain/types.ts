@@ -8,6 +8,7 @@ export type Coordinate = {
 };
 
 export type DestructuredGrid = [Line[], Line[]];
+
 export type CoordinateTuple = [Coordinate, Coordinate];
 
 export type Line = {
@@ -16,3 +17,18 @@ export type Line = {
 };
 
 export type Grid = { lines: Line[] };
+
+export type TileData = {
+  color: string;
+  address: string;
+  clicks: number;
+};
+
+export type ExtraData = {
+  key: string;
+  data: TileData;
+};
+
+export type AugemntedTile = ExtraData & {
+  coordinates: CoordinateTuple;
+};
