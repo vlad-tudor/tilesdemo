@@ -7,6 +7,9 @@ export type Coordinate = {
   lat: number;
 };
 
+export type DestructuredGrid = [Line[], Line[]];
+export type CoordinateTuple = [Coordinate, Coordinate];
+
 export type Line = {
   start: Coordinate;
   end: Coordinate;

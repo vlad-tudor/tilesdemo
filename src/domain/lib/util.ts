@@ -1,17 +1,13 @@
-import { Coordinate, Line } from "../types";
+import { Coordinate, CoordinateTuple, DestructuredGrid, Line } from "../types";
 import { Feature, GeoJSON } from "geojson";
 import { LatLng } from "leaflet";
 
-export type DestructuredGrid = [Line[], Line[]];
-export type CoordinateTuple = [Coordinate, Coordinate];
-
 /**
- * TODO: Sort lines?
- * Probably best to memoize this
+ * organises lines into vertical and horizontal lines
  * @param lines
  * @returns [ verticalLines[], horizontalLines[]]
  */
-export const gridDestructure = (lines: Line[]): DestructuredGrid => {
+export const organiseLines = (lines: Line[]): DestructuredGrid => {
   const [verticalLines, horizontalLines]: DestructuredGrid = [[], []];
   for (let line of lines) {
     const { start, end } = line;
@@ -94,9 +90,7 @@ export const coodinatesToGetJsonPoints = (
 
 export const linesToGeoJson = (lines: Line[]): GeoJSON => ({
   type: "FeatureCollection",
-  features: coodinatesToGetJsonPoints(
-    linesToCoordinates(gridDestructure(lines))
-  ),
+  features: coodinatesToGetJsonPoints(linesToCoordinates(organiseLines(lines))),
 });
 
 /**

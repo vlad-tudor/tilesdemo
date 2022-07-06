@@ -1,5 +1,5 @@
 import { SVGOverlay } from "react-leaflet";
-import { CoordinateTuple } from "../../domain/lib/util";
+import { CoordinateTuple } from "../../domain/types";
 
 export const RenderSvgs = ({ tiles }: { tiles: CoordinateTuple[] }) =>
   tiles.map(

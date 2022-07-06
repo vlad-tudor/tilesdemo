@@ -1,6 +1,5 @@
 import { getApi, WHAT3WORDS } from ".";
-import { CoordinateTuple } from "../domain/lib/util";
-import { Line } from "../domain/types";
+import { CoordinateTuple, Line } from "../domain/types";
 
 type GetGridSectionResponseType = { lines: Line[] };
 

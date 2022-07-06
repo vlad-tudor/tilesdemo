@@ -7,12 +7,11 @@ import {
 } from "react-leaflet";
 
 import {
-  CoordinateTuple,
-  gridDestructure,
+  organiseLines,
   latLngToCoordinate,
   linesToCoordinatePairs,
 } from "../../domain/lib/util";
-import { Coordinate } from "../../domain/types";
+import { Coordinate, CoordinateTuple } from "../../domain/types";
 import L from "leaflet";
 import { getGridSection } from "../../fetch/what3words";
 
@@ -67,7 +66,7 @@ const Tiles = () => {
     var sw = map.getBounds().getSouthWest();
     if (map.getZoom() > 18)
       getGridSection([latLngToCoordinate(sw), latLngToCoordinate(ne)]).then(
-        (lines) => setTiles(linesToCoordinatePairs(gridDestructure(lines)))
+        (lines) => setTiles(linesToCoordinatePairs(organiseLines(lines)))
       );
   }, []);
 
