@@ -1,10 +1,8 @@
-import { useMemo, useState } from "react";
-import { createDivOverlayComponent } from "@react-leaflet/core";
+import { useCallback, useEffect, useState } from "react";
 import {
   MapContainer,
   TileLayer,
   Rectangle,
-  SVGOverlay,
   useMapEvents,
 } from "react-leaflet";
 
@@ -13,16 +11,20 @@ import {
   gridDestructure,
   latLngToCoordinate,
   linesToCoordinatePairs,
-  linesToCoordinates,
 } from "../../domain/lib/util";
 import { Coordinate } from "../../domain/types";
-import { mockData } from "../../mocks";
-import L, { Map } from "leaflet";
+import L from "leaflet";
 import { getGridSection } from "../../fetch/what3words";
 
+const secretCoordinates1: Coordinate = {
+  lng: -0.1332,
+  lat: 51.51636,
+};
+
+const roundTolerance = 5;
+
 const MapLeaflet = () => {
-  const coordinates = linesToCoordinates(gridDestructure(mockData.lines));
-  const [center, setCenter] = useState<Coordinate>(coordinates[0]);
+  // move
   return (
     <div
       style={{
@@ -34,72 +36,90 @@ const MapLeaflet = () => {
     >
       <MapContainer
         style={{ height: "660px", width: "370x" }}
-        center={center}
+        center={secretCoordinates1}
         scrollWheelZoom={true}
         zoom={19}
       >
+        {/* image tiles, not the generated tiles */}
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           maxZoom={21}
           maxNativeZoom={19}
         />
-        <RenderTiles />
+        <Tiles />
       </MapContainer>
     </div>
   );
 };
 
-type RenderTilesProps = {
-  zoom: number;
-};
-
-const RenderTiles = () => {
-  const roundTolerance = 5;
+/**
+ * bunch of logic managing resources to draw the grid.
+ * @returns
+ */
+const Tiles = () => {
   const [tiles, setTiles] = useState<CoordinateTuple[]>([]);
   const [tile, setTile] = useState<string>("");
 
-  const mapBounds = (map: L.Map) => {
+  // gets map bounds from the map objects,
+  const getMapBounds = useCallback((map: L.Map) => {
     var ne = map.getBounds().getNorthEast();
     var sw = map.getBounds().getSouthWest();
     if (map.getZoom() > 18)
       getGridSection([latLngToCoordinate(sw), latLngToCoordinate(ne)]).then(
         (lines) => setTiles(linesToCoordinatePairs(gridDestructure(lines)))
       );
-  };
+  }, []);
 
   // handlers
   const map = useMapEvents({
     moveend() {
-      mapBounds(map);
+      getMapBounds(map);
     },
   });
 
-  const innerHandlers = useMemo(
-    () => ({
-      click(e: any) {
-        let { lat, lng } = e.sourceTarget._bounds._southWest;
-        const key = `${lat.toFixed(roundTolerance)}${lng.toFixed(
-          roundTolerance
-        )}`;
-        console.log(key);
-        setTile(key);
-      },
-    }),
-    [map]
-  );
+  useEffect(() => {
+    getMapBounds(map);
+  }, [getMapBounds, map]);
 
+  const innerHandlers = {
+    click(e: any) {
+      let { lat, lng } = e.sourceTarget._bounds._southWest;
+      const key = `${lat.toFixed(roundTolerance)}${lng.toFixed(
+        roundTolerance
+      )}`;
+      setTile(key);
+      // save coords to
+    },
+  };
+
+  return <TileDraw tile={tile} tiles={tiles} eventHandlers={innerHandlers} />;
+};
+
+type TileDrawProps = {
+  tile: string;
+  tiles: CoordinateTuple[];
+  eventHandlers: L.LeafletEventHandlerFnMap;
+};
+
+// draws the tiles
+const TileDraw = ({ tile, tiles, eventHandlers }: TileDrawProps) => {
   return (
     <>
       {tiles.map(
+        // some advanced destructing.
+        // add data to each tile.
+
         ([{ lat: swLat, lng: swLng }, { lat: neLat, lng: neLng }], index) => {
+          // unique key for each tile
           const key = `${swLat.toFixed(roundTolerance)}${swLng.toFixed(
             roundTolerance
           )}`;
-          if (index === 0) console.log(key);
+
           return (
+            // returns a little rectangle bounded by the coordinates
             <Rectangle
-              eventHandlers={innerHandlers}
+              eventHandlers={eventHandlers}
               key={key + index}
               stroke
               bounds={[
@@ -117,21 +137,5 @@ const RenderTiles = () => {
     </>
   );
 };
-
-const RenderSvgs = ({ tiles }: { tiles: CoordinateTuple[] }) =>
-  tiles.map(
-    ([{ lat: swLat, lng: swLng }, { lat: neLat, lng: neLng }], index) => (
-      <SVGOverlay
-        key={`svg-${swLat}-${swLng}`}
-        attributes={{ stroke: "gray" }}
-        bounds={[
-          [swLat, swLng],
-          [neLat, neLng],
-        ]}
-      >
-        <rect x="0" y="0" width="100%" height="100%" fill="none" />
-      </SVGOverlay>
-    )
-  );
 
 export default MapLeaflet;

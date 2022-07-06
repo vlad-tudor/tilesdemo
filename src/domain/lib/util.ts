@@ -1,4 +1,4 @@
-import { Coordinate, GeoJson, Line } from "../types";
+import { Coordinate, Line } from "../types";
 import { Feature, GeoJSON } from "geojson";
 import { LatLng } from "leaflet";
 

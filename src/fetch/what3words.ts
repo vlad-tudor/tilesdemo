@@ -6,6 +6,11 @@ type GetGridSectionResponseType = { lines: Line[] };
 
 const what3WordsUrl = "https://api.what3words.com/v3/";
 
+/**
+ * Call to the what3words api
+ * @param param0  // [southwest, northeast]
+ * @returns Promise<Line[]>
+ */
 export const getGridSection = ([sw, ne]: CoordinateTuple) =>
   getApi<GetGridSectionResponseType>(
     what3WordsUrl +

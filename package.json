@@ -28,7 +28,7 @@
   },
   "scripts": {
     "start-api": "react-scripts start",
-    "start": "cross-env REACT_APP_GOOGLEMAPS=none cross-env REACT_APP_WHAT3WORDS=none react-scripts start",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

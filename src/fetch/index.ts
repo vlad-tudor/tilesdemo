@@ -1,4 +1,3 @@
-export const GOOGLEMAPS = process.env.REACT_APP_GOOGLEMAPS || "";
 export const WHAT3WORDS = process.env.REACT_APP_WHAT3WORDS || "";
 
 const postParams: Partial<RequestInit> = {
