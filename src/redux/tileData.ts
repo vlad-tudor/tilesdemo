@@ -10,6 +10,13 @@ const initialState: TileDataState = {
   extraTileData: [],
 };
 
+const handwrittenReducer = (
+  state: TileDataState,
+  {}: PayloadAction<TileAugment>
+) => {
+  return {};
+};
+
 const tileDataSlice = createSlice({
   name: "tileData",
   initialState,
@@ -19,16 +26,20 @@ const tileDataSlice = createSlice({
     reset: () => initialState,
     setTileData: (
       state,
-      { payload: { key, data } }: PayloadAction<TileAugment>
+      { payload: { key, data } }: PayloadAction<Required<TileAugment>>
     ) => {
       // absolutely no performance concerns whatsoever, sorry
-      const [tile, rest] = _.partition(
-        state.extraTileData,
-        (p) => p.key === key
-      );
+      const extraTileData = state.extraTileData.slice();
+      const [tile, rest] = _.partition(extraTileData, (p) => p.key === key);
 
-      const newTile = !!tile[0] ? { ...tile[0], data } : { key, data };
-      return { ...state, extraTileData: [newTile, ...rest] };
+      const newTile = !!tile[0]
+        ? { ...tile[0], data: { ...data } }
+        : { key: key, data: { ...data } };
+
+      return {
+        ...state,
+        extraTileData: [newTile, ...rest],
+      };
     },
     resetTile: (
       state,

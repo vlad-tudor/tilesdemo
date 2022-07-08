@@ -1,6 +1,6 @@
 import { mockData } from "./mocks";
 import {
-  augmetTiles,
+  augmentTiles,
   generateCoordinateKey,
   linesToCoordinatePairs,
   organiseLines,
@@ -66,7 +66,7 @@ describe("util functions", () => {
     );
     const data: TileAugment[] = [];
 
-    const augmentedData = augmetTiles(tiles, data);
+    const augmentedData = augmentTiles(tiles, data);
 
     expect(augmentedData.length).toEqual(tiles.length);
     //expect(augmentedData[0]).toHaveProperty("tiles");

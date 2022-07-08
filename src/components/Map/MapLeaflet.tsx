@@ -3,7 +3,13 @@ import { secretCoordinates1 } from "../../domain/lib/enums";
 import Tiles from "../Tiles/Tiles";
 
 const MapLeaflet = () => {
-  // move
+  // these constants are very dependent on the map provider, and what they're supporting.
+  // that's why I'm leaving them here.
+  // Maybe these would be enums/props/provided by whatever backend alongside with the map props perhaps
+
+  const zoom = 19; // dependant on tile provider
+  const maxZoom = 21; // levels which may just enlargest higherst res photo available
+
   return (
     <div
       style={{
@@ -17,15 +23,15 @@ const MapLeaflet = () => {
         style={{ height: "660px", width: "370x" }}
         center={secretCoordinates1}
         scrollWheelZoom={true}
-        zoom={19}
+        zoom={zoom} // zoom
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          maxZoom={21}
-          maxNativeZoom={19}
+          maxZoom={maxZoom} // max zoom
+          maxNativeZoom={zoom} // zoom
         />
-        <Tiles />
+        <Tiles zoom={zoom} />
       </MapContainer>
     </div>
   );

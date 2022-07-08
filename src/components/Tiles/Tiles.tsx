@@ -1,37 +1,62 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import L from "leaflet";
 import { Rectangle, useMapEvents, Popup } from "react-leaflet";
 import {
+  augmentTiles,
   organiseLines,
   latLngToCoordinate,
   linesToCoordinatePairs,
   generateCoordinateKey,
 } from "../../domain/lib/util";
-import { AugemntedTile, CoordinateTuple } from "../../domain/types";
+import {
+  AugemntedTile,
+  CoordinateTuple,
+  TileAugment,
+  TileData,
+} from "../../domain/types";
 import { getGridSection } from "../../fetch/what3words";
+import { useAppDispatch, useAppSelector } from "../../domain/hooks";
+import { setTileData } from "../../redux/tileData";
+import { Github } from "@uiw/react-color";
 
-/**
- * bunch of logic managing resources to draw the grid.
- * @returns
- */
-const Tiles = () => {
+// Context
+
+// Whole shebang
+type TilesProps = {
+  zoom: number;
+};
+
+const Tiles = ({ zoom }: TilesProps) => {
+  const { extraTileData } = useAppSelector((state) => state.tileDataReducer);
+
   const [tiles, setTiles] = useState<CoordinateTuple[]>([]);
-  const [augmentedTiles, setAugmentedtiles] = useState<AugemntedTile[]>([]);
-  const [tile, setTile] = useState<string>("");
+  const [augmentedTiles, setAugemntedtiles] = useState<AugemntedTile[]>([]);
+  const [tile, setTile] = useState<string>(""); //redundant
 
   // gets map bounds from the map objects,
-  const getMapBounds = useCallback((map: L.Map) => {
-    var ne = map.getBounds().getNorthEast();
-    var sw = map.getBounds().getSouthWest();
-    if (map.getZoom() > 18)
-      getGridSection([latLngToCoordinate(sw), latLngToCoordinate(ne)]).then(
-        (lines) => {
-          setTiles(linesToCoordinatePairs(organiseLines(lines)));
-        }
-      );
-  }, []);
+  const getMapBounds = useCallback(
+    (map: L.Map) => {
+      var ne = map.getBounds().getNorthEast();
+      var sw = map.getBounds().getSouthWest();
+      if (map.getZoom() >= zoom) {
+        getGridSection([latLngToCoordinate(sw), latLngToCoordinate(ne)]).then(
+          (lines) => {
+            const tiles = linesToCoordinatePairs(organiseLines(lines));
+            setTiles(tiles);
+            console.log(extraTileData);
+            setAugemntedtiles(augmentTiles(tiles, extraTileData));
+          }
+        );
+      } else {
+        setTiles([]);
+        setAugemntedtiles([]);
+      }
+    },
+    [extraTileData]
+  );
 
   // handlers
+
   const map = useMapEvents({
     moveend() {
       getMapBounds(map);
@@ -42,34 +67,24 @@ const Tiles = () => {
     getMapBounds(map);
   }, [getMapBounds, map]);
 
-  const innerHandlers = {
-    click(e: any) {
-      let { lat, lng } = e.sourceTarget._bounds._southWest;
-      const key = generateCoordinateKey({ lat, lng });
-      setTile(key);
-      // add a click to the tile
-      // save coords to
-    },
-  };
+  useEffect(() => {
+    setAugemntedtiles(augmentTiles(tiles, extraTileData));
+  }, [extraTileData]);
 
-  return <TileDraw tile={tile} tiles={tiles} eventHandlers={innerHandlers} />;
+  return <FancyTileDraw tile={tile} tiles={augmentedTiles} setTile={setTile} />;
 };
 
 type FancyTileDrawProps = {
   tile: string;
   tiles: AugemntedTile[];
-  eventHandlers: L.LeafletEventHandlerFnMap;
+  setTile: (s: string) => void;
 };
 
 // draws the tiles
-const FancyTileDraw = ({ tile, tiles, eventHandlers }: FancyTileDrawProps) => {
-  // hook in redux? or maybe pass thang down
+const FancyTileDraw = ({ tile, tiles, setTile }: FancyTileDrawProps) => {
   return (
     <>
       {tiles.map(
-        // some advanced destructing.
-        // add data to each tile.
-
         (
           {
             data,
@@ -81,24 +96,30 @@ const FancyTileDraw = ({ tile, tiles, eventHandlers }: FancyTileDrawProps) => {
           },
           index
         ) => {
-          //const key = generateCoordinateKey({ lat: swLat, lng: swLng });
           return (
-            // returns a little rectangle bounded by the coordinates
             <Rectangle
-              eventHandlers={eventHandlers}
+              eventHandlers={{
+                click(e: any) {
+                  let { lat, lng } = e.sourceTarget._bounds._southWest;
+                  const key = generateCoordinateKey({ lat, lng });
+
+                  setTile(key);
+                },
+              }}
               key={key + index}
               stroke
               bounds={[
                 [swLat, swLng],
                 [neLat, neLng],
               ]}
-              // eventHandlers={innerHandlers}
               pathOptions={
-                tile === key ? { color: "red" } : { color: "gray", weight: 1 }
+                tile === key
+                  ? { color: "red" }
+                  : { color: data?.color || "gray", weight: 1 }
               }
             >
-              <Popup>
-                <TilePopup />
+              <Popup autoPan={false} keepInView={true}>
+                <TilePopup tileAugment={{ key, data }} />
               </Popup>
             </Rectangle>
           );
@@ -108,51 +129,25 @@ const FancyTileDraw = ({ tile, tiles, eventHandlers }: FancyTileDrawProps) => {
   );
 };
 
-const TilePopup = () => {
-  useEffect(() => {}, []);
-  return <div>tile :)</div>;
+type TilePopupProps = {
+  tileAugment: TileAugment;
 };
 
-/**
- * WILL DEPRFECATE BELOW STUFF
- */
-type TileDrawProps = {
-  tile: string;
-  tiles: CoordinateTuple[];
-  eventHandlers: L.LeafletEventHandlerFnMap;
-};
+const TilePopup = ({ tileAugment: { key, data } }: TilePopupProps) => {
+  const dispatch = useAppDispatch();
+  const updateTileData = (newData: TileData) =>
+    dispatch(setTileData({ key, data: newData }));
 
-// draws the tiles
-const TileDraw = ({ tile, tiles, eventHandlers }: TileDrawProps) => {
   return (
-    <>
-      {tiles.map(
-        // some advanced destructing.
-        // add data to each tile.
-
-        ([{ lat: swLat, lng: swLng }, { lat: neLat, lng: neLng }], index) => {
-          const key = generateCoordinateKey({ lat: swLat, lng: swLng });
-          return (
-            // returns a little rectangle bounded by the coordinates
-            <Rectangle
-              eventHandlers={eventHandlers}
-              key={key + index}
-              stroke
-              bounds={[
-                [swLat, swLng],
-                [neLat, neLng],
-              ]}
-              // eventHandlers={innerHandlers}
-              pathOptions={
-                tile === key ? { color: "red" } : { color: "gray", weight: 1 }
-              }
-            >
-              <Popup>Popup for Marker</Popup>
-            </Rectangle>
-          );
-        }
-      )}
-    </>
+    <div>
+      <Github
+        onChange={(color) => {
+          updateTileData({ address: data?.address || "", color: color.hex });
+          console.log(color.hex);
+        }}
+      />
+    </div>
   );
 };
+
 export default Tiles;

@@ -134,7 +134,7 @@ export const generateCoordinateKey = ({ lat, lng }: Coordinate) =>
  * @param data
  * @returns
  */
-export const augmetTiles = (
+export const augmentTiles = (
   tiles: CoordinateTuple[],
   tileData: TileAugment[]
 ): AugemntedTile[] => {

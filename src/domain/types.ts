@@ -21,7 +21,6 @@ export type Grid = { lines: Line[] };
 export type TileData = {
   color: string;
   address: string;
-  clicks: number;
 };
 
 export type TileAugment = {
