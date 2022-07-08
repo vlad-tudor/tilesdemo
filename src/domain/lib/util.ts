@@ -4,7 +4,7 @@ import {
   CoordinateTuple,
   DestructuredGrid,
   Line,
-  TileData,
+  TileAugment,
 } from "../types";
 import { Feature, GeoJSON } from "geojson";
 import { LatLng } from "leaflet";
@@ -114,28 +114,37 @@ export const latLngToCoordinate = ({ lat, lng }: LatLng): Coordinate => ({
 
 /**
  * Use this to get a unique ke from a coordinate
- * Use southWest coordinates from the tiles.
- * @param param0 Coordinate
+ *
+ * ALWAYS use southWest coordinates from the tiles.
+ * @param southWest Coordinate
  * @returns
  */
 export const generateCoordinateKey = ({ lat, lng }: Coordinate) =>
   `${lat.toFixed(MagicValues.ROUNDTO)}${lng.toFixed(MagicValues.ROUNDTO)}`;
 
 /**
- *  Augemnts tiles with extra data
+ * Augemnts tiles with extra data .
+ *
+ * This is quite inneficient.
+ * Ideally you'd want to manage spacial data with an appropriate data structure.
+ * Like quad trees or a hilbert curve.
+ *
+ * But hey, it's a demo and you probably won't read this :)
  * @param tiles
  * @param data
  * @returns
  */
 export const augmetTiles = (
   tiles: CoordinateTuple[],
-  data: TileData[]
+  tileData: TileAugment[]
 ): AugemntedTile[] => {
-  const newTiles: AugemntedTile[] = tiles.map((tile) => {
+  const newTiles: AugemntedTile[] = tiles.map(([southWest, northEast]) => {
+    const key = generateCoordinateKey(southWest);
+    const data = tileData.find((dt) => dt.key === key)?.data;
     return {
-      coordinates: tile,
-      key: generateCoordinateKey(tile[0]),
-      data: { color: "", clicks: 0, address: "" },
+      key,
+      coordinates: [southWest, northEast],
+      data,
     };
   });
   return newTiles;

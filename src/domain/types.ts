@@ -24,11 +24,11 @@ export type TileData = {
   clicks: number;
 };
 
-export type ExtraData = {
+export type TileAugment = {
   key: string;
-  data: TileData;
+  data?: TileData;
 };
 
-export type AugemntedTile = ExtraData & {
+export type AugemntedTile = TileAugment & {
   coordinates: CoordinateTuple;
 };

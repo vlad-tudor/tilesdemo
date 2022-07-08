@@ -1,11 +1,11 @@
-import { mockData } from "../mocks";
+import { mockData } from "./mocks";
 import {
   augmetTiles,
   generateCoordinateKey,
   linesToCoordinatePairs,
   organiseLines,
 } from "../domain/lib/util";
-import { CoordinateTuple, Line, TileData } from "../domain/types";
+import { CoordinateTuple, Line, TileAugment } from "../domain/types";
 
 const _ = require("lodash");
 
@@ -64,7 +64,7 @@ describe("util functions", () => {
     const tiles: CoordinateTuple[] = linesToCoordinatePairs(
       organiseLines(mockData)
     );
-    const data: TileData[] = [];
+    const data: TileAugment[] = [];
 
     const augmentedData = augmetTiles(tiles, data);
 
