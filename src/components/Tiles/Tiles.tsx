@@ -1,27 +1,17 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import L from "leaflet";
+import { useEffect, useState } from "react";
 import { Rectangle, useMapEvents, Popup } from "react-leaflet";
-import {
-  augmentTiles,
-  organiseLines,
-  latLngToCoordinate,
-  linesToCoordinatePairs,
-  generateCoordinateKey,
-} from "../../domain/lib/util";
+import { augmentTiles } from "../../domain/lib/util";
 import {
   AugemntedTile,
   CoordinateTuple,
   TileAugment,
   TileData,
 } from "../../domain/types";
-import { getGridSection } from "../../fetch/what3words";
 import { useAppDispatch, useAppSelector } from "../../domain/hooks";
 import { setTileData } from "../../redux/tileData";
-import { Github } from "@uiw/react-color";
+import { Compact } from "@uiw/react-color";
+import { getMapBounds } from "./util";
 
-// Context
-
-// Whole shebang
 type TilesProps = {
   zoom: number;
 };
@@ -31,60 +21,31 @@ const Tiles = ({ zoom }: TilesProps) => {
 
   const [tiles, setTiles] = useState<CoordinateTuple[]>([]);
   const [augmentedTiles, setAugemntedtiles] = useState<AugemntedTile[]>([]);
-  const [tile, setTile] = useState<string>(""); //redundant
 
-  // gets map bounds from the map objects,
-  const getMapBounds = useCallback(
-    (map: L.Map) => {
-      var ne = map.getBounds().getNorthEast();
-      var sw = map.getBounds().getSouthWest();
-      if (map.getZoom() >= zoom) {
-        getGridSection([latLngToCoordinate(sw), latLngToCoordinate(ne)]).then(
-          (lines) => {
-            const tiles = linesToCoordinatePairs(organiseLines(lines));
-            setTiles(tiles);
-            console.log(extraTileData);
-            setAugemntedtiles(augmentTiles(tiles, extraTileData));
-          }
-        );
-      } else {
-        setTiles([]);
-        setAugemntedtiles([]);
-      }
-    },
-    [extraTileData]
-  );
-
-  // handlers
+  const getMap = () =>
+    getMapBounds(map, zoom).then((tiles) => {
+      console.log(tiles);
+      setTiles(tiles);
+      setAugemntedtiles(augmentTiles(tiles, extraTileData));
+    });
 
   const map = useMapEvents({
     moveend() {
-      getMapBounds(map);
+      getMap();
     },
   });
 
   useEffect(() => {
-    getMapBounds(map);
+    getMap();
   }, [getMapBounds, map]);
 
   useEffect(() => {
     setAugemntedtiles(augmentTiles(tiles, extraTileData));
   }, [extraTileData]);
 
-  return <FancyTileDraw tile={tile} tiles={augmentedTiles} setTile={setTile} />;
-};
-
-type FancyTileDrawProps = {
-  tile: string;
-  tiles: AugemntedTile[];
-  setTile: (s: string) => void;
-};
-
-// draws the tiles
-const FancyTileDraw = ({ tile, tiles, setTile }: FancyTileDrawProps) => {
   return (
     <>
-      {tiles.map(
+      {augmentedTiles.map(
         (
           {
             data,
@@ -98,27 +59,15 @@ const FancyTileDraw = ({ tile, tiles, setTile }: FancyTileDrawProps) => {
         ) => {
           return (
             <Rectangle
-              eventHandlers={{
-                click(e: any) {
-                  let { lat, lng } = e.sourceTarget._bounds._southWest;
-                  const key = generateCoordinateKey({ lat, lng });
-
-                  setTile(key);
-                },
-              }}
               key={key + index}
               stroke
               bounds={[
                 [swLat, swLng],
                 [neLat, neLng],
               ]}
-              pathOptions={
-                tile === key
-                  ? { color: "red" }
-                  : { color: data?.color || "gray", weight: 1 }
-              }
+              pathOptions={{ color: data?.color || "gray", weight: 1 }}
             >
-              <Popup autoPan={false} keepInView={true}>
+              <Popup autoPan={false} keepInView={true} closeOnClick>
                 <TilePopup tileAugment={{ key, data }} />
               </Popup>
             </Rectangle>
@@ -140,10 +89,9 @@ const TilePopup = ({ tileAugment: { key, data } }: TilePopupProps) => {
 
   return (
     <div>
-      <Github
+      <Compact
         onChange={(color) => {
           updateTileData({ address: data?.address || "", color: color.hex });
-          console.log(color.hex);
         }}
       />
     </div>

@@ -1,4 +1,9 @@
 // overriding default popup
 .leaflet-popup-content-wrapper {
   border-radius: 0px;
+
+  .leaflet-popup-content {
+    margin: 0;
+    margin-right: 1rem;
+  }
 }
