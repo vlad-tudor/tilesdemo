@@ -15,6 +15,8 @@ export const getMapBounds = async (map: L.Map, zoom: number) => {
       latLngToCoordinate(ne),
     ]).then((lines) => linesToCoordinatePairs(organiseLines(lines)));
   } else {
-    return new Promise<CoordinateTuple[]>(() => {}).then(() => []);
+    return new Promise<CoordinateTuple[]>((res) => {
+      res([] as CoordinateTuple[]);
+    });
   }
 };

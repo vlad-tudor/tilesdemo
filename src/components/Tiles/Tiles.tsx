@@ -18,13 +18,11 @@ type TilesProps = {
 
 const Tiles = ({ zoom }: TilesProps) => {
   const { extraTileData } = useAppSelector((state) => state.tileDataReducer);
-
   const [tiles, setTiles] = useState<CoordinateTuple[]>([]);
   const [augmentedTiles, setAugemntedtiles] = useState<AugemntedTile[]>([]);
 
   const getMap = () =>
     getMapBounds(map, zoom).then((tiles) => {
-      console.log(tiles);
       setTiles(tiles);
       setAugemntedtiles(augmentTiles(tiles, extraTileData));
     });
