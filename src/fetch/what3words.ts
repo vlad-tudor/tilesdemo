@@ -1,8 +1,35 @@
 import { getApi, WHAT3WORDS } from ".";
 import { GeoJSON } from "geojson";
-import { Coordinate, CoordinateTuple, Line } from "../domain/types";
+import {
+  AugemntedTile,
+  CoordinateTuple,
+  Coordinate,
+  Line,
+} from "../domain/types";
+import { LatLng } from "leaflet";
+import { generateCoordinateKey } from "../domain/lib/util";
 
 type GetGridSectionResponseType = { lines: Line[] };
+
+type GetGidGeoJsonResponseType = {
+  country: string; // "GB"
+  square: {
+    southwest: {
+      lng: -0.195543;
+      lat: 51.520833;
+    };
+    northeast: {
+      lng: -0.195499;
+      lat: 51.52086;
+    };
+  };
+  nearestPlace: string; // "Bayswater, London";
+  coordinates: LatLng; //{  lng: -0.195521,  lat: 51.520847}
+
+  words: string; // "filled.count.soap"
+  language: string; //"en";
+  map: string; //"https://w3w.co/filled.count.soap";
+};
 
 const what3WordsUrl = "https://api.what3words.com/v3/";
 
@@ -23,7 +50,18 @@ export const getGridGeoJson = ([sw, ne]: CoordinateTuple) =>
       `grid-section?bounding-box=${sw.lat},${sw.lng},${ne.lat},${ne.lng}&format=geojson&key=${WHAT3WORDS}`
   );
 
-export const getCoordinateWords = ({ lng, lat }: Coordinate) =>
-  getApi<any>(
+export const getNewTile = ({ lng, lat }: Coordinate) =>
+  getApi<GetGidGeoJsonResponseType>(
     what3WordsUrl + `convert-to-3wa?coordinates=${lat},${lng}&key=${WHAT3WORDS}`
-  ).then((res) => {});
+  ).then(({ square: { southwest, northeast }, words }) => {
+    const coordinates: CoordinateTuple = [southwest, northeast];
+    const tile: Required<AugemntedTile> = {
+      key: generateCoordinateKey(southwest),
+      coordinates,
+      data: {
+        address: words,
+        color: "rgba(255,0,0,0.5)",
+      },
+    };
+    return tile;
+  });

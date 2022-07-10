@@ -12,7 +12,7 @@ import { setTileData } from "../../redux/tileData";
 import { Compact } from "@uiw/react-color";
 import { getMapBounds } from "./util";
 import { Button } from "@mui/material";
-import { getCoordinateWords } from "../../fetch/what3words";
+import { getNewTile } from "../../fetch/what3words";
 
 type TilesProps = {
   zoom: number;
@@ -61,11 +61,12 @@ const Tiles = ({ zoom }: TilesProps) => {
             <Rectangle
               eventHandlers={{
                 click(e: any) {
-                  console.log("pling");
                   if (!data?.address) {
-                    getCoordinateWords({
+                    getNewTile({
                       lat: (swLat + neLat) / 2,
                       lng: (swLng + neLng) / 2,
+                    }).then(tile => {
+                      
                     });
                   }
                 },
