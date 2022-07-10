@@ -11,6 +11,8 @@ import { useAppDispatch, useAppSelector } from "../../domain/hooks";
 import { setTileData } from "../../redux/tileData";
 import { Compact } from "@uiw/react-color";
 import { getMapBounds } from "./util";
+import { Button } from "@mui/material";
+import { getCoordinateWords } from "../../fetch/what3words";
 
 type TilesProps = {
   zoom: number;
@@ -57,13 +59,31 @@ const Tiles = ({ zoom }: TilesProps) => {
         ) => {
           return (
             <Rectangle
+              eventHandlers={{
+                click(e: any) {
+                  console.log("pling");
+                  if (!data?.address) {
+                    getCoordinateWords({
+                      lat: (swLat + neLat) / 2,
+                      lng: (swLng + neLng) / 2,
+                    });
+                  }
+                },
+              }}
               key={key + index}
               stroke
               bounds={[
                 [swLat, swLng],
                 [neLat, neLng],
               ]}
-              pathOptions={{ color: data?.color || "gray", weight: 1 }}
+              pathOptions={
+                data?.color
+                  ? {
+                      color: data.color,
+                      weight: 2,
+                    }
+                  : { color: "rgba(0,0,0,0.1)", weight: 0.5 }
+              }
             >
               <Popup autoPan={false} keepInView={true} closeOnClick>
                 <TilePopup tileAugment={{ key, data }} />
@@ -92,6 +112,7 @@ const TilePopup = ({ tileAugment: { key, data } }: TilePopupProps) => {
           updateTileData({ address: data?.address || "", color: color.hex });
         }}
       />
+      <Button>Reset</Button>
     </div>
   );
 };

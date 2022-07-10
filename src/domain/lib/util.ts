@@ -113,23 +113,27 @@ export const latLngToCoordinate = ({ lat, lng }: LatLng): Coordinate => ({
 });
 
 /**
- * Use this to get a unique ke from a coordinate
- *
+ * Use this to get a unique ke from a coordinate.
  * ALWAYS use southWest coordinates from the tiles.
  * @param southWest Coordinate
  * @returns
  */
-export const generateCoordinateKey = ({ lat, lng }: Coordinate) =>
+export const generateCoordinateKey = ({ lat, lng }: Coordinate): string =>
   `${lat.toFixed(MagicValues.ROUNDTO)}${lng.toFixed(MagicValues.ROUNDTO)}`;
+
+export const generateCoordinateFromKey = (key: string): Coordinate => ({
+  lat: 3,
+  lng: 3,
+});
 
 /**
  * Augemnts tiles with extra data .
  *
  * This is quite inneficient.
  * Ideally you'd want to manage spacial data with an appropriate data structure.
- * Like quad trees or a hilbert curve.
+ * Like quad trees or a hilbert curve
+ * Or any other fancy terminology
  *
- * But hey, it's a demo and you probably won't read this :)
  * @param tiles
  * @param data
  * @returns

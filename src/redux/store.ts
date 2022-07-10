@@ -1,7 +1,8 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { tileDataReducer } from "./tileData";
+import { tileDataSimplerReducer } from "./tileDataSimpler";
 
-const reducer = combineReducers({ tileDataReducer });
+const reducer = combineReducers({ tileDataReducer, tileDataSimplerReducer });
 
 // some persister config & reducer override in the future
 export const store = configureStore({
