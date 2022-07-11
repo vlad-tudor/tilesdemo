@@ -5,6 +5,7 @@ const globes = ["🌎", "🌏", "🌍"];
 
 function App() {
   const [globeIndex, setGlobe] = useState(0);
+  
   useEffect(() => {
     let interval: NodeJS.Timer | null = setInterval(() => {
       setGlobe((g) => (g + 1) % globes.length);
@@ -13,6 +14,7 @@ function App() {
       interval = null;
     };
   }, []);
+
   return (
     <div>
       <br />

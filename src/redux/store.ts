@@ -1,13 +1,35 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { tileDataReducer } from "./tileData";
 import { tileDataSimplerReducer } from "./tileDataSimpler";
+import {
+  persistReducer,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+} from "redux-persist";
+import storage from "redux-persist/lib/storage";
 
 const reducer = combineReducers({ tileDataReducer, tileDataSimplerReducer });
 
-// some persister config & reducer override in the future
+const persistConfig = {
+  key: "root",
+  version: 1,
+  storage,
+};
+
+const persistedReducer = persistReducer(persistConfig, reducer);
+
 export const store = configureStore({
-  reducer,
-  // some redux persist crap here for later
+  reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER], // probably don't need a few of these
+      },
+    }),
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

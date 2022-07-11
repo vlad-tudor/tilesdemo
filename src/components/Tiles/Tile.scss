@@ -6,3 +6,16 @@
     margin: 0;
   }
 }
+
+.w-color-compact {
+  .w-color-editable-input {
+    opacity: 0;
+    height: 0;
+    pointer-events: none;
+  }
+  .w-color-editable-input-rgba {
+    opacity: 0;
+    height: 0;
+    pointer-events: none;
+  }
+}

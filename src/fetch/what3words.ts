@@ -14,18 +14,11 @@ type GetGridSectionResponseType = { lines: Line[] };
 type GetGidGeoJsonResponseType = {
   country: string; // "GB"
   square: {
-    southwest: {
-      lng: -0.195543;
-      lat: 51.520833;
-    };
-    northeast: {
-      lng: -0.195499;
-      lat: 51.52086;
-    };
+    southwest: Coordinate; //{ lng: -0.195543; lat: 51.520833; };
+    northeast: Coordinate; //{ lng: -0.195543; lat: 51.520833; };
   };
   nearestPlace: string; // "Bayswater, London";
   coordinates: LatLng; //{  lng: -0.195521,  lat: 51.520847}
-
   words: string; // "filled.count.soap"
   language: string; //"en";
   map: string; //"https://w3w.co/filled.count.soap";
@@ -34,15 +27,22 @@ type GetGidGeoJsonResponseType = {
 const what3WordsUrl = "https://api.what3words.com/v3/";
 
 /**
- * Call to the what3words api
- * @param param0  // [southwest, northeast]
+ * Call to the what3words api grid
+ * @param  [southwest, northeast]
  * @returns Promise<Line[]>
  */
+
 export const getGridSection = ([sw, ne]: CoordinateTuple) =>
   getApi<GetGridSectionResponseType>(
     what3WordsUrl +
       `grid-section?bounding-box=${sw.lat},${sw.lng},${ne.lat},${ne.lng}&format=json&key=${WHAT3WORDS}`
   ).then((res) => res.lines);
+
+/**
+ * Call to the what3words api grid (Geo)
+ * @param  [southwest, northeast]
+ * @returns Promise<GeoJSON>
+ */
 
 export const getGridGeoJson = ([sw, ne]: CoordinateTuple) =>
   getApi<GeoJSON>(
@@ -50,6 +50,11 @@ export const getGridGeoJson = ([sw, ne]: CoordinateTuple) =>
       `grid-section?bounding-box=${sw.lat},${sw.lng},${ne.lat},${ne.lng}&format=geojson&key=${WHAT3WORDS}`
   );
 
+/**
+ * Call to the what3words api
+ * @param  [southwest, northeast]
+ * @returns Promise<GeoJSON>
+ */
 export const getNewTile = ({ lng, lat }: Coordinate) =>
   getApi<GetGidGeoJsonResponseType>(
     what3WordsUrl + `convert-to-3wa?coordinates=${lat},${lng}&key=${WHAT3WORDS}`
