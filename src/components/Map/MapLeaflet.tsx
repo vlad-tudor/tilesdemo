@@ -20,13 +20,15 @@ const MapLeaflet = () => {
     <>
       <div
         // move to separate styles file
+        // yean I know it's ugly
         style={{
           width: "380px",
           border: "0.2rem solid black",
           margin: "auto",
           marginTop: "2rem",
-
           marginBottom: "2rem",
+          borderRadius: "1rem",
+          overflow: "hidden",
         }}
       >
         <MapContainer

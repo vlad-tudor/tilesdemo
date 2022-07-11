@@ -7,7 +7,7 @@ import {
 } from "../domain/lib/util";
 import { CoordinateTuple, Line, TileAugment } from "../domain/types";
 
-const _ = require("lodash");
+const _ = require("lodash"); // lying linter
 
 describe("util functions", () => {
   it("organiseLines,", () => {
