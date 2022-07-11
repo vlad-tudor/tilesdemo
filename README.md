@@ -11,3 +11,5 @@
 ### `>` in `package.json` set your relevvant api keys
 
 ### `> npm run start` to launch the project
+
+### `copy .env-copy into .env` and rename env variables
