@@ -8,9 +8,9 @@ import {
   TileData,
 } from "../../domain/types";
 import { useAppDispatch, useAppSelector } from "../../domain/hooks";
-import { setTileData } from "../../redux/tileData";
+import { setTileData } from "../../redux/deprecated/tileData";
 import { Compact } from "@uiw/react-color";
-import { getMapBounds } from "./util";
+import { getMapBounds } from "../Tiles/util";
 import { Button } from "@mui/material";
 import { getNewTile } from "../../fetch/what3words";
 

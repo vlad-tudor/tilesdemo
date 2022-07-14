@@ -1,4 +1,5 @@
 export const WHAT3WORDS = process.env.REACT_APP_WHAT3WORDS || "";
+export const MAPBOX = process.env.REACT_APP_MAPBOX || "";
 
 const postParams: Partial<RequestInit> = {
   headers: {

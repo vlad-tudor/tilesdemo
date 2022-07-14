@@ -1,5 +1,5 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
-import { tileDataReducer } from "./tileData";
+import { tileDataReducer } from "./deprecated/tileData";
 import { tileDataSimplerReducer } from "./tileDataSimpler";
 import {
   persistReducer,

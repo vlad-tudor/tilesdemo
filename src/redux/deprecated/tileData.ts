@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import _ from "lodash";
-import { TileAugment } from "../domain/types";
+import { TileAugment } from "../../domain/types";
 
 type TileDataState = {
   extraTileData: TileAugment[];
@@ -8,13 +8,6 @@ type TileDataState = {
 
 const initialState: TileDataState = {
   extraTileData: [],
-};
-
-const handwrittenReducer = (
-  state: TileDataState,
-  {}: PayloadAction<TileAugment>
-) => {
-  return {};
 };
 
 const tileDataSlice = createSlice({
