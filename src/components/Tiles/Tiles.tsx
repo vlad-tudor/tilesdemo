@@ -6,20 +6,15 @@ import { GeoJSON } from "geojson";
 import { GeoJSON as GeoJsonDisplay } from "react-leaflet";
 import { getNewTile } from "../../fetch/what3words";
 import { useAppDispatch, useAppSelector } from "../../domain/hooks";
-import { AugemntedTile, Coordinate, TileData } from "../../domain/types";
-import {
-  addOrSetTileData,
-  removeTile,
-  setCenter,
-} from "../../redux/tileDataSimpler";
-import { Compact } from "@uiw/react-color";
-import { Button } from "@mui/material";
+import { AugemntedTile, Coordinate } from "../../domain/types";
+import { addOrSetTileData, setCenter } from "../../redux/tileDataSimpler";
+import TilePopup from "./TilePopup/TilePopup";
 
 type TilesSimplerProps = {
   zoom: number;
 };
 
-const TilesSimpler = ({ zoom }: TilesSimplerProps) => {
+const Tiles = ({ zoom }: TilesSimplerProps) => {
   const { tiles } = useAppSelector((state) => state.tileDataSimplerReducer);
   const dispatch = useAppDispatch();
   const updateTileData = (tile: Required<AugemntedTile>) =>
@@ -32,9 +27,10 @@ const TilesSimpler = ({ zoom }: TilesSimplerProps) => {
     moveend() {
       const { lat, lng } = map.getCenter();
       dispatch(setCenter({ lat, lng }));
+      getMap();
     },
     move() {
-      getMap();
+      //getMap();
     },
     click({ latlng: { lat, lng } }) {
       getTile({ lat, lng });
@@ -78,8 +74,7 @@ const TilesSimpler = ({ zoom }: TilesSimplerProps) => {
   );
 };
 
-// maybe move all below crap into a separate file
-
+// move this into another file later
 type RenderRectanglesProps = {
   tiles: Required<AugemntedTile>[];
 };
@@ -113,52 +108,5 @@ const RenderRectangles = ({ tiles }: RenderRectanglesProps) => (
     })}
   </>
 );
-type TilePopupProps = {
-  tile: Required<AugemntedTile>;
-};
 
-const TilePopup = ({ tile }: TilePopupProps) => {
-  const {
-    data: { address },
-  } = tile;
-  const dispatch = useAppDispatch();
-  const updateTileData = (newData: TileData) =>
-    dispatch(addOrSetTileData({ ...tile, data: newData }));
-
-  return (
-    <div>
-      <h3 style={{ marginTop: 0, marginBottom: 0 }}>
-        <b
-          style={{ color: "red", marginLeft: "0.5rem", marginRight: "0.2rem" }}
-        >
-          {"///"}
-        </b>
-        <b>{address}</b>
-      </h3>
-      <Compact
-        style={{ background: "none" }}
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-        onChange={(color) => {
-          updateTileData({ address, color: color.hex });
-        }}
-      />
-      <div style={{ margin: "auto", width: "4rem" }}>
-        <Button
-          color="error"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            dispatch(removeTile(tile));
-          }}
-        >
-          Delete
-        </Button>
-      </div>
-    </div>
-  );
-};
-
-export default TilesSimpler;
+export default Tiles;

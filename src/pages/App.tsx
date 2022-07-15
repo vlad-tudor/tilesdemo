@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import MapLeaflet from "./components/Map/MapLeaflet";
+import MapLeaflet from "../components/Map/MapLeaflet";
 
 const globes = ["🌎", "🌏", "🌍"];
 

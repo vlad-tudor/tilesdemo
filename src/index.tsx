@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";
+import App from "./pages/App";
 import reportWebVitals from "./reportWebVitals";
 import { PersistGate } from "redux-persist/integration/react";
 import { Provider } from "react-redux";
@@ -8,7 +8,7 @@ import { store } from "./redux/store";
 import { persistStore } from "redux-persist";
 
 import "mapbox-gl/dist/mapbox-gl.css";
-import "./index.scss";
+import "./assets/styles/index.scss";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement

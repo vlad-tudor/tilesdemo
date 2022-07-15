@@ -2,7 +2,8 @@ import { Button } from "@mui/material";
 import { MapContainer, TileLayer } from "react-leaflet";
 import { useAppDispatch, useAppSelector } from "../../domain/hooks";
 import { removeAllTiles } from "../../redux/tileDataSimpler";
-import TilesSimpler from "../Tiles/TileSimpler";
+import { ResetButton } from "../Misc/ResetButton/ResetButton";
+import Tiles from "../Tiles/Tiles";
 
 const MapLeaflet = () => {
   // these constants are very dependent on the map provider, and what they're supporting.
@@ -32,10 +33,12 @@ const MapLeaflet = () => {
         }}
       >
         <MapContainer
+          // keeping these here for now
           style={{
             height: "660px",
             width: "370x",
           }}
+          
           center={center}
           scrollWheelZoom={true}
           zoom={zoom} // zoom
@@ -47,14 +50,10 @@ const MapLeaflet = () => {
             maxNativeZoom={zoom} // zoom
           />
           {/* <Tiles zoom={zoom} /> */}
-          <TilesSimpler zoom={zoom} />
+          <Tiles zoom={zoom} />
         </MapContainer>
       </div>
-      <div style={{ margin: "auto", width: "8rem" }}>
-        <Button onClick={clearMap} variant="contained" color="error">
-          Reset Grid
-        </Button>
-      </div>
+      <ResetButton onClick={clearMap} thingToReset="grid" />
     </>
   );
 };

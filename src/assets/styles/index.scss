@@ -1,0 +1,8 @@
+@import "./overrides.scss";
+@import "../../components/Tiles/Tile.scss";
+@import "../../components/Misc/What3WordsAddress/What3WordsAddress.scss";
+@import "../../components/Misc/ResetButton/ResetButton.scss";
+
+body {
+  background-color: rgba(0, 0, 0, 0.6);
+}
